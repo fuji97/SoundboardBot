@@ -1,0 +1,5 @@
+﻿Logging:
+  LogLevel:
+    Default: Debug
+Discord:
+  Token: ""
