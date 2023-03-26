@@ -3,3 +3,9 @@
     Default: Debug
 Discord:
   Token: ""
+Supabase:
+  Url: "https://svnfsbqgeppsyxvrruwr.supabase.co"
+  Secret": ""
+Cache:
+  Autocomplete: 00:05
+  Clips: 1

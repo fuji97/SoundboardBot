@@ -5,6 +5,7 @@ using Discord.WebSocket;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using SoundboardBot.Discord.Core;
 namespace SoundboardBot.Discord; 
 
 public class BotService : IHostedService {
@@ -13,6 +14,7 @@ public class BotService : IHostedService {
     private readonly ILogger<BotService> _logger;
     private readonly DiscordSocketClient _client;
     private readonly InteractionService _interactionService;
+    private readonly CacheService _cache;
     private readonly string _token;
     private readonly Func<DiscordSocketClient, Task>? _configureDelegate;
 
@@ -20,15 +22,17 @@ public class BotService : IHostedService {
         ILoggerFactory loggerFactory,
         DiscordSocketClient client,
         InteractionService interactionService,
+        CacheService cache,
         string token,
         Func<DiscordSocketClient, Task>? configureDelegate) {
         _serviceProvider = serviceProvider;
         _loggerFactory = loggerFactory;
         _client = client;
         _interactionService = interactionService;
+        _cache = cache;
         _token = token;
         _configureDelegate = configureDelegate;
-        
+
         _logger = _loggerFactory.CreateLogger<BotService>();
     }
 
@@ -57,9 +61,12 @@ public class BotService : IHostedService {
         // Configure logging
         _client.Log += LogMessage(_loggerFactory.CreateLogger<DiscordSocketClient>());
         _interactionService.Log += LogMessage(_loggerFactory.CreateLogger<InteractionService>());
+        
+        // Clear cache
+        _cache.ClearCache();
 
         // Add Interaction Service
-        await _interactionService.AddModulesAsync(Assembly.GetEntryAssembly()!, _serviceProvider);
+        await _interactionService.AddModulesAsync(Assembly.GetEntryAssembly()!, _serviceProvider.CreateScope().ServiceProvider);
 
         // Configure client
         if (_configureDelegate != null) 
@@ -67,15 +74,16 @@ public class BotService : IHostedService {
 
         _client.InteractionCreated += async (x) => {
             var ctx = new SocketInteractionContext(_client, x);
-            await _interactionService.ExecuteCommandAsync(ctx, _serviceProvider);
+            var scopedServiceProvider = _serviceProvider.CreateScope().ServiceProvider;
+            await _interactionService.ExecuteCommandAsync(ctx, scopedServiceProvider );
         };
 
         // Start bot
         await _client.LoginAsync(TokenType.Bot, _token);
-        await _client.StartAsync(); // TODO Maybe use cancellationToken here?
+        await _client.StartAsync();
 
         _client.Ready += async () => {
-            await _interactionService.RegisterCommandsGloballyAsync(); // TODO NO
+            await _interactionService.RegisterCommandsGloballyAsync();
         };
     }
     
@@ -133,7 +141,8 @@ public static class BotServiceExtensions {
     public static async Task<IServiceCollection> AddDiscordBot(this IServiceCollection host, string token, Func<BotServiceBuilder, Task>? configure) {
         var builder = new BotServiceBuilder(token);
 
-        await configure(builder);
+        if (configure != null) 
+            await configure(builder);
 
         Register(host, builder);
 
@@ -152,8 +161,9 @@ public static class BotServiceExtensions {
         var logger = services.GetRequiredService<ILoggerFactory>();
         var client = services.GetRequiredService<DiscordSocketClient>();
         var interactionService = services.GetRequiredService<InteractionService>();
+        var cache = services.CreateScope().ServiceProvider.GetRequiredService<CacheService>();
 
-        return new BotService(services, logger, client, interactionService, token, configureDelegate);
+        return new BotService(services, logger, client, interactionService, cache, token, configureDelegate);
     }
 }
 
