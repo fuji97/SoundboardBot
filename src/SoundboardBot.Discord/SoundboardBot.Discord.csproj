@@ -10,9 +10,6 @@
   </PropertyGroup>
 
     <ItemGroup>
-      <Content Include="..\.dockerignore">
-        <Link>.dockerignore</Link>
-      </Content>
       <None Remove="appsettings.yaml" />
       <Content Include="appsettings.yaml">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>

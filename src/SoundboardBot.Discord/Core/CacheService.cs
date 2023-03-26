@@ -53,12 +53,14 @@ public class CacheService {
         
         // Clear all download cache entries
         var tempPath = Path.Combine(Path.GetTempPath(), "SoundboardBot");
-        var files = Directory.GetFiles(tempPath);
-        foreach (var file in files) {
-            File.Delete(file);
-        }
+        if (Path.Exists(tempPath)) {
+            var files = Directory.GetFiles(tempPath);
+            foreach (var file in files) {
+                File.Delete(file);
+            }
         
-        _logger.LogInformation("Cache cleared");
+            _logger.LogInformation("Cache cleared");
+        }
     }
     
     private static string GetDownloadClipKey(string url) => $"file/{url}";

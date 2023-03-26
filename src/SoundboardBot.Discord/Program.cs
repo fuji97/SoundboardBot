@@ -14,6 +14,7 @@ var host = Host.CreateDefaultBuilder(args)
     .ConfigureAppConfiguration((host, conf) => {
         conf.AddYamlFile("appsettings.yaml", true, true);
         conf.AddYamlFile($"appsettings.{host.HostingEnvironment.EnvironmentName}.yaml", true, true);
+        conf.AddEnvironmentVariables();
     })
     .ConfigureServices((host, services) => {
         var discordToken = host.Configuration["Discord:Token"]!;
