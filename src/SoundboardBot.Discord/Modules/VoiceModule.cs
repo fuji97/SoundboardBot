@@ -29,7 +29,7 @@ public class VoiceModule : InteractionModuleBase {
         channel ??= (Context.User as IGuildUser)?.VoiceChannel;
         if (channel == null) { 
             _logger.LogWarning("User must be in a voice channel, or a voice channel must be passed as an argument");
-            await FollowupAsync("User must be in a voice channel, or a voice channel must be passed as an argument."); 
+            await RespondAsync("User must be in a voice channel, or a voice channel must be passed as an argument."); 
             return; 
         }
         
