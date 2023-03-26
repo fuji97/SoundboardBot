@@ -14,10 +14,6 @@
       <Content Include="appsettings.yaml">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Content>
-      <None Remove="appsettings.Development.yaml" />
-      <Content Include="appsettings.Development.yaml">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Content>
     </ItemGroup>
 
     <ItemGroup>
