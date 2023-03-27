@@ -5,7 +5,6 @@ FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 WORKDIR /src
 COPY ["src/SoundboardBot.ApiClient/SoundboardBot.ApiClient.csproj", "SoundboardBot.ApiClient/"]
 COPY ["src/SoundboardBot.Discord/SoundboardBot.Discord.csproj", "SoundboardBot.Discord/"]
-RUN dotnet nuget add source https://www.myget.org/F/discord-net/api/v3/index.json --name MyGet-DiscordNET
 RUN dotnet restore "SoundboardBot.ApiClient/SoundboardBot.ApiClient.csproj"
 RUN dotnet restore "SoundboardBot.Discord/SoundboardBot.Discord.csproj"
 COPY src/ .
